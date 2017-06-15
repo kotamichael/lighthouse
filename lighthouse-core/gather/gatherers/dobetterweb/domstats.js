@@ -138,7 +138,7 @@ class DOMStats extends Gatherer {
       return (${getDOMStats.toString()}(document.documentElement));
     })()`;
     return options.driver.evaluateAsync(expression)
-      .then(results => options.driver.getAllNodesInDocument().then(allNodes => {
+      .then(results => options.driver.getAllElementsInDocumentAndFrames().then(allNodes => {
         results.totalDOMNodes = allNodes.length;
         return results;
       }));

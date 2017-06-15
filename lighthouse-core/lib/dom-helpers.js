@@ -24,8 +24,8 @@
 /* global document */
 
 /**
- * @param {string=} selector A simple CSS select to filter nodes on. Combinators
- * are not supported.
+ * @param {string=} selector Optional simple CSS selector to filter nodes on.
+ *     Combinators are not supported.
  * @param {!Array<!Element>}
  */
 function getElementsInDocument(selector) {
@@ -48,5 +48,5 @@ function getElementsInDocument(selector) {
 }
 
 module.exports = {
-  getElementsInDocument
+  getElementsInDocumentFn: getElementsInDocument.toString()
 };

@@ -117,7 +117,7 @@ class EventListeners extends Gatherer {
     return Promise.resolve()
       .then(() => this.listenForScriptParsedEvents())
       .then(() => this.unlistenForScriptParsedEvents())
-      .then(_ => options.driver.getAllNodesInDocument())
+      .then(_ => options.driver.getAllElementsInDocumentAndFrames())
       .then(nodes => {
         nodes.push('document', 'window');
         return this.collectListeners(nodes);
