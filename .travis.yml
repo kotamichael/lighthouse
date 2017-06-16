@@ -31,9 +31,7 @@ before_script:
   - yarn build-all
 script:
   - yarn test-cli-formatting & yarn test-launcher-formatting & wait
-  - yarn lint
-  - yarn unit
-  - yarn closure
+  - yarn lint & yarn unit & yarn closure & wait
   - yarn smoke
   - yarn smokehouse
   - yarn compile-devtools
