@@ -329,13 +329,53 @@ describe('Config', () => {
       },
     });
 
-    assert.ok(config.audits.length, 2);
-    assert.equal(config.passes.length, 2);
+    assert.equal(config.audits.length, 2, 'reduces audit count');
+    assert.equal(config.passes.length, 2, 'preserves both passes');
     assert.ok(config.passes[0].recordTrace, 'preserves recordTrace pass');
     assert.ok(!config.categories['unused-category'], 'removes unused categories');
     assert.equal(config.categories['needed-category'].audits.length, 1);
     assert.equal(config.categories['other-category'].audits.length, 1);
   });
+
+  it('filters the config w/ skipAudits', () => {
+    const config = new Config({
+      settings: {
+        skipAudits: ['first-meaningful-paint'],
+      },
+      passes: [
+        {recordTrace: true, gatherers: []},
+        {passName: 'a11y', gatherers: ['accessibility']},
+      ],
+      audits: [
+        'accessibility/color-contrast',
+        'first-meaningful-paint',
+        'first-interactive',
+        'estimated-input-latency',
+      ],
+      categories: {
+        'needed-category': {
+          audits: [
+            {id: 'first-meaningful-paint'},
+            {id: 'first-interactive'},
+            {id: 'color-contrast'},
+          ],
+        },
+        'other-category': {
+          audits: [
+            {id: 'color-contrast'},
+            {id: 'estimated-input-latency'},
+          ],
+        },
+      },
+    });
+
+    assert.equal(config.audits.length, 3, 'skips the FMP audit');
+    assert.equal(config.passes.length, 2, 'preserves both passes');
+    assert.ok(config.passes[0].recordTrace, 'preserves recordTrace pass');
+    assert.equal(config.categories['needed-category'].audits.length, 2,
+      'removes skipped audit from category');
+  });
+
 
   it('filtering filters out traces when not needed', () => {
     const warnings = [];

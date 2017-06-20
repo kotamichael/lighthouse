@@ -381,9 +381,13 @@ class Config {
    * @param {!Array<string>=} skipAuditIds
    * @return {!Object<string, {audits: !Array<{id: string}>}>}
    */
-  static filterCategoriesAndAudits(oldCategories, categoryIds = [], auditIds = [],
-      skipAuditIds = []) {
+  static filterCategoriesAndAudits(oldCategories, categoryIds, auditIds, skipAuditIds) {
     const categories = {};
+    const filterByIncludedCategory = !!categoryIds;
+    const filterByIncludedAudit = !!auditIds;
+    categoryIds = categoryIds || [];
+    auditIds = auditIds || [];
+    skipAuditIds = skipAuditIds || [];
 
     // warn if the category is not found
     categoryIds.forEach(categoryId => {
@@ -418,8 +422,17 @@ class Config {
     Object.keys(oldCategories).forEach(categoryId => {
       const category = deepClone(oldCategories[categoryId]);
 
-      // filter to the audit whitelist if we didn't include the whole category
-      if (!categoryIds.includes(categoryId)) {
+      if (filterByIncludedCategory && filterByIncludedAudit) {
+        // If we're filtering to the category and audit whitelist, include the union of the two
+        if (!categoryIds.includes(categoryId)) {
+          category.audits = category.audits.filter(audit => auditIds.includes(audit.id));
+        }
+      } else if (filterByIncludedCategory) {
+        // If we're filtering to just the category whitelist and the category is not included, skip it
+        if (!categoryIds.includes(categoryId)) {
+          return;
+        }
+      } else if (filterByIncludedAudit) {
         category.audits = category.audits.filter(audit => auditIds.includes(audit.id));
       }
 
