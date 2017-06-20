@@ -8,7 +8,7 @@
 const Config = require('../../config/config');
 const assert = require('assert');
 const path = require('path');
-const defaultConfig = require('../../config/default.js');
+const fullConfig = require('../../config/full-config.js');
 const log = require('lighthouse-logger');
 const Gatherer = require('../../gather/gatherers/gatherer');
 const Audit = require('../../audits/audit');
@@ -19,7 +19,7 @@ const Runner = require('../../runner');
 describe('Config', () => {
   let origConfig;
   beforeEach(() => {
-    origConfig = JSON.parse(JSON.stringify(defaultConfig));
+    origConfig = JSON.parse(JSON.stringify(fullConfig));
   });
 
   it('returns new object', () => {

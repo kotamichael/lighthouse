@@ -7,6 +7,7 @@
 
 const defaultConfigPath = './default.js';
 const defaultConfig = require('./default.js');
+const fullConfig = require('./full-config.js');
 
 const GatherRunner = require('../gather/gather-runner');
 const log = require('lighthouse-logger');
@@ -285,9 +286,13 @@ class Config {
       configJSON.audits = Array.from(inputConfig.audits);
     }
 
-    // Extend the default config if specified
-    if (configJSON.extends) {
-      configJSON = Config.extendConfigJSON(deepClone(defaultConfig), configJSON);
+    // Extend the default or full config if specified
+    if (configJSON.extends === 'lighthouse:full') {
+      configJSON = Config.extendConfigJSON(deepClone(fullConfig), configJSON);
+    } else if (configJSON.extends) {
+      const explodedDefaultConfig = Config.extendConfigJSON(deepClone(fullConfig),
+          deepClone(defaultConfig));
+      configJSON = Config.extendConfigJSON(explodedDefaultConfig, configJSON);
     }
 
     // Generate a limited config if specified
