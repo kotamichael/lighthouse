@@ -31,7 +31,7 @@ before_script:
   - export LIGHTHOUSE_CHROMIUM_PATH="$(pwd)/chrome-linux/chrome"
   - sh -e /etc/init.d/xvfb start &
   - sleep 3
-  #- ./lighthouse-core/scripts/download-chrome.sh
+  - ./lighthouse-core/scripts/download-chrome.sh
   - yarn build-all
 script:
   - yarn test-cli-formatting
@@ -51,5 +51,5 @@ after_success:
   - ./lighthouse-core/scripts/generate-combined-coverage.sh
 after_failure:
   - grep 'No screenshots' perf.json && travis-artifacts upload --path perf-0.trace.json
-addons:
-  chrome: stable
+#addons:
+#  chrome: stable
