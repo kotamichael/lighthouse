@@ -90,8 +90,10 @@ describe('Start-url gatherer', () => {
       startUrlGathererWithQueryString.pass(optionsWithQueryString)
         .then(_ => startUrlGathererWithQueryString.afterPass(optionsWithQueryString, tracingData))
     ]).then(([artifact, artifactWithQueryString]) => {
-      assert.deepEqual(artifact, {statusCode: -1});
-      assert.deepEqual(artifactWithQueryString, {statusCode: -1});
+      assert.equal(artifact.statusCode, -1);
+      assert.ok(artifact.debugString, 'did not set debug string');
+      assert.equal(artifactWithQueryString.statusCode, -1);
+      assert.ok(artifactWithQueryString.debugString, 'did not set debug string');
     });
   });
 
@@ -125,10 +127,10 @@ describe('Start-url gatherer', () => {
       driver: wrapSendCommand(mockDriver, '')
     };
 
-    startUrlGatherer.pass(options)
+    return startUrlGatherer.pass(options)
       .then(_ => startUrlGatherer.afterPass(options, tracingData))
       .then(artifact => {
-        assert.equal(artifact.debugString, `No web app manifest found on page ${options.url}`);
+        assert.equal(artifact.debugString, 'ERROR: start_url string empty');
       });
   });
 
@@ -139,7 +141,7 @@ describe('Start-url gatherer', () => {
       driver: wrapSendCommand(mockDriver, 'https://not-same-origin.com/')
     };
 
-    startUrlGatherer.pass(options)
+    return startUrlGatherer.pass(options)
       .then(_ => startUrlGatherer.afterPass(options, tracingData))
       .then(artifact => {
         assert.equal(artifact.debugString, 'ERROR: start_url must be same-origin as document');

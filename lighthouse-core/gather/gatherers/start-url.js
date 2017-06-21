@@ -52,26 +52,25 @@ class StartUrl extends Gatherer {
         return response && manifestParser(response.data, response.url, options.url);
       })
       .then(manifest => {
-        if (!manifest || !manifest.value.start_url || !manifest.value.start_url.raw) {
-          throw new Error(`No web app manifest found on page ${options.url}`);
+        if (!manifest || !manifest.value) {
+          this.debugString = `No web app manifest found on page ${options.url}`;
+          return;
         }
 
         if (manifest.value.start_url.debugString) {
-          throw new Error(manifest.value.start_url.debugString);
+          this.debugString = manifest.value.start_url.debugString;
+          return;
         }
 
         this.startUrl = manifest.value.start_url.value;
-      })
-      .then(_ => this.executeFetchRequest(options.driver, this.startUrl))
-      .catch(err => {
-        this.debugString = err.message;
+        return this.executeFetchRequest(options.driver, this.startUrl);
       });
   }
 
   afterPass(options, tracingData) {
     if (this.debugString || !this.startUrl) {
       const debugString = this.debugString || 'No start_url found inside the manifest';
-      return Promise.resolve({debugString});
+      return Promise.resolve({debugString, statusCode: -1});
     }
 
     const networkRecords = tracingData.networkRecords;
@@ -82,7 +81,12 @@ class StartUrl extends Gatherer {
 
     return options.driver.goOnline(options)
       .then(_ => {
-        return {statusCode: navigationRecord ? navigationRecord.statusCode : -1};
+        if (!navigationRecord) {
+          const debugString = 'Did not fetch start URL from service worker';
+          return {debugString, statusCode: -1};
+        }
+
+        return {statusCode: navigationRecord.statusCode};
       });
   }
 }
