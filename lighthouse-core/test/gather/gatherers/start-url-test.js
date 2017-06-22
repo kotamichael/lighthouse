@@ -115,8 +115,8 @@ describe('Start-url gatherer', () => {
       startUrlGathererWithFragment.pass(optionsWithQueryString)
         .then(_ => startUrlGathererWithFragment.afterPass(optionsWithQueryString, tracingData))
     ]).then(([artifact, artifactWithFragment]) => {
-      assert.deepEqual(artifact, {statusCode: 200});
-      assert.deepEqual(artifactWithFragment, {statusCode: 200});
+      assert.equal(artifact.statusCode, 200);
+      assert.equal(artifactWithFragment.statusCode, 200);
     });
   });
 

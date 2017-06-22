@@ -15,7 +15,6 @@ cache:
   yarn: true
   directories:
     - node_modules
-    - chrome-linux
     - chrome-launcher/node_modules
     - lighthouse-cli/node_modules
     - lighthouse-extension/node_modules
@@ -23,13 +22,14 @@ cache:
     - /home/travis/.rvm/gems/
 install:
   - yarn
-  - yarn install-all
+  # travis can't handle the parallel install (without caches)
+  - yarn run install-all:task:windows
 before_script:
   - gem install travis-artifacts
   - export DISPLAY=:99.0
   - export LIGHTHOUSE_CHROMIUM_PATH="$(pwd)/chrome-linux/chrome"
   - sh -e /etc/init.d/xvfb start
-  - ./lighthouse-core/scripts/download-chrome.sh
+  - sleep 3 # wait for xvfb to boot
   - yarn build-all
 script:
   - yarn test-cli-formatting
@@ -46,6 +46,8 @@ before_cache:
   - rm -rf ./node_modules/temp-devtoolsfrontend/
   - rm -rf ./node_modules/temp-devtoolsprotocol/
 after_success:
-  - yarn coveralls
+  - ./lighthouse-core/scripts/generate-combined-coverage.sh
 after_failure:
   - grep 'No screenshots' perf.json && travis-artifacts upload --path perf-0.trace.json
+addons:
+  chrome: stable
