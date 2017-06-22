@@ -43,7 +43,8 @@ class MultiCheckAudit extends Audit {
     // Otherwise, we pass
     return {
       rawValue: true,
-      extendedInfo
+      extendedInfo,
+      debugString: result.debugString,
     };
   }
 

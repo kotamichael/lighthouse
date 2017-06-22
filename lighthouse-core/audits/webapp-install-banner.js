@@ -73,14 +73,17 @@ class WebappInstallBanner extends MultiCheckAudit {
     }
   }
 
-  static assessOfflineStartUrl(artifacts, failures) {
+  static assessOfflineStartUrl(artifacts, failures, result) {
     const hasOfflineStartUrl = artifacts.StartUrl.statusCode === 200;
-    if (artifacts.StartUrl.debugString) {
-      failures.push(artifacts.StartUrl.debugString);
-    }
 
     if (!hasOfflineStartUrl) {
       failures.push('Manifest start_url is not cached by a Service Worker');
+
+      if (artifacts.StartUrl.debugString) {
+        failures.push(artifacts.StartUrl.debugString);
+      }
+    } else if (artifacts.StartUrl.debugString) {
+      result.debugString = artifacts.StartUrl.debugString;
     }
   }
 
@@ -88,14 +91,12 @@ class WebappInstallBanner extends MultiCheckAudit {
     const failures = [];
 
     return artifacts.requestManifestValues(artifacts.Manifest).then(manifestValues => {
-      WebappInstallBanner.assessManifest(manifestValues, failures);
-      WebappInstallBanner.assessServiceWorker(artifacts, failures);
-      WebappInstallBanner.assessOfflineStartUrl(artifacts, failures);
+      const result = {failures, manifestValues};
+      WebappInstallBanner.assessManifest(manifestValues, failures, result);
+      WebappInstallBanner.assessServiceWorker(artifacts, failures, result);
+      WebappInstallBanner.assessOfflineStartUrl(artifacts, failures, result);
 
-      return {
-        failures,
-        manifestValues
-      };
+      return result;
     });
   }
 }
