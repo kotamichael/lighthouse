@@ -155,10 +155,10 @@ function saveTrace(traceData, traceFilename) {
       }
     });
 
-    const ws = fs.createWriteStream(traceFilename);
-    traceStream.pipe(ws);
-    ws.on('finish', resolve);
-    ws.on('error', reject);
+    const writeStream = fs.createWriteStream(traceFilename);
+    traceStream.pipe(writeStream);
+    writeStream.on('finish', resolve);
+    writeStream.on('error', reject);
   });
 }
 
