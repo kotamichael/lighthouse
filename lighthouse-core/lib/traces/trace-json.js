@@ -5,7 +5,7 @@
  */
 'use strict';
 
-const WebInspector = require('./web-inspector');
+const WebInspector = require('../web-inspector');
 
 class TraceParser {
   constructor() {
