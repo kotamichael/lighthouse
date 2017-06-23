@@ -153,14 +153,11 @@ describe('PWA: webapp install banner audit', () => {
 
   it('includes debugString from start_url', () => {
     const artifacts = generateMockArtifacts();
-    artifacts.StartUrl = {debugString: 'Oops it failed!'};
+    artifacts.StartUrl = {statusCode: 200, debugString: 'Warning!'};
 
     return WebappInstallBannerAudit.audit(artifacts).then(result => {
-      assert.strictEqual(result.rawValue, false);
-      assert.ok(result.debugString.includes('start_url'), result.debugString);
-      const failures = result.extendedInfo.value.failures;
-      assert.strictEqual(failures.length, 2, failures);
-      assert.equal(failures[0], 'Oops it failed!');
+      assert.strictEqual(result.rawValue, true);
+      assert.equal(result.debugString, 'Warning!');
     });
   });
 });
