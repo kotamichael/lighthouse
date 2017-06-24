@@ -15,6 +15,7 @@ const traceEvents = require('../fixtures/traces/progressive-app.json');
 const dbwTrace = require('../fixtures/traces/dbw_tester.json');
 const dbwResults = require('../fixtures/dbw_tester-perf-results.json');
 const Audit = require('../../audits/audit.js');
+const fullTraceObj = require('../fixtures/traces/progressive-app-m60.json');
 
 /* eslint-env mocha */
 describe('asset-saver helper', () => {
@@ -50,10 +51,10 @@ describe('asset-saver helper', () => {
       return assetSaver.saveAssets(artifacts, dbwResults.audits, process.cwd() + '/the_file');
     });
 
-    it('trace file saved to disk with data', () => {
+    it('trace file saved to disk with only trace events', () => {
       const traceFilename = 'the_file-0.trace.json';
       const traceFileContents = fs.readFileSync(traceFilename, 'utf8');
-      assert.ok(traceFileContents.length > 2800000);
+      assert.deepStrictEqual(JSON.parse(traceFileContents), {traceEvents});
       fs.unlinkSync(traceFilename);
     });
 
@@ -101,18 +102,57 @@ describe('asset-saver helper', () => {
   });
 
   describe('saveTrace', () => {
-    let traceFilename;
+    const traceFilename = 'test-trace-0.json';
 
-    after(() => {
+    afterEach(() => {
       fs.unlinkSync(traceFilename);
     });
 
-    it('correctly streams a trace to disk', () => {
-      traceFilename = 'test-trace-0.json';
-      return assetSaver.saveTrace({traceEvents}, traceFilename)
+    it('correctly saves a trace with metadata to disk', () => {
+      return assetSaver.saveTrace(fullTraceObj, traceFilename)
         .then(_ => {
           const traceFileContents = fs.readFileSync(traceFilename, 'utf8');
-          assert.deepStrictEqual(JSON.parse(traceFileContents), {traceEvents});
+          assert.deepStrictEqual(JSON.parse(traceFileContents), fullTraceObj);
+        });
+    });
+
+    it('correctly saves a trace with no trace events to disk', () => {
+      const trace = {
+        traceEvents: [],
+        metadata: {
+          'clock-domain': 'MAC_MACH_ABSOLUTE_TIME',
+          'cpu-family': 6,
+          'cpu-model': 70,
+          'cpu-stepping': 1,
+          'field-trials': [],
+        }
+      };
+
+      return assetSaver.saveTrace(trace, traceFilename)
+        .then(_ => {
+          const traceFileContents = fs.readFileSync(traceFilename, 'utf8');
+          assert.deepStrictEqual(JSON.parse(traceFileContents), trace);
+        });
+    });
+
+    it('correctly saves a trace with multiple extra properties to disk', () => {
+      const trace = {
+        traceEvents,
+        metadata: fullTraceObj.metadata,
+        someProp: 555,
+        anotherProp: {
+          unlikely: {
+            nested: [
+              'value'
+            ]
+          }
+        },
+      };
+
+      return assetSaver.saveTrace(trace, traceFilename)
+        .then(_ => {
+          const traceFileContents = fs.readFileSync(traceFilename, 'utf8');
+          assert.deepStrictEqual(JSON.parse(traceFileContents), trace);
         });
     });
   });

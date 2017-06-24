@@ -148,6 +148,8 @@ function* traceJsonGenerator(traceData) {
 function saveTrace(traceData, traceFilename) {
   return new Promise((resolve, reject) => {
     const traceIter = traceJsonGenerator(traceData);
+    // A stream that pulls in the next traceJsonGenerator chunk as writeStream
+    // reads from it. Closes stream with null when iteration is complete.
     const traceStream = new stream.Readable({
       read() {
         const next = traceIter.next();
@@ -156,9 +158,10 @@ function saveTrace(traceData, traceFilename) {
     });
 
     const writeStream = fs.createWriteStream(traceFilename);
-    traceStream.pipe(writeStream);
     writeStream.on('finish', resolve);
     writeStream.on('error', reject);
+
+    traceStream.pipe(writeStream);
   });
 }
 
