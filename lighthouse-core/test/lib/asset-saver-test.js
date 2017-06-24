@@ -34,24 +34,26 @@ describe('asset-saver helper', () => {
   });
 
   describe('saves files', function() {
-    const artifacts = {
-      devtoolsLogs: {
-        [Audit.DEFAULT_PASS]: [{message: 'first'}, {message: 'second'}]
-      },
-      traces: {
-        [Audit.DEFAULT_PASS]: {
-          traceEvents
-        }
-      },
-      requestScreenshots: () => Promise.resolve(screenshotFilmstrip)
-    };
+    before(() => {
+      const artifacts = {
+        devtoolsLogs: {
+          [Audit.DEFAULT_PASS]: [{message: 'first'}, {message: 'second'}]
+        },
+        traces: {
+          [Audit.DEFAULT_PASS]: {
+            traceEvents
+          }
+        },
+        requestScreenshots: () => Promise.resolve(screenshotFilmstrip)
+      };
 
-    assetSaver.saveAssets(artifacts, dbwResults.audits, process.cwd() + '/the_file');
+      return assetSaver.saveAssets(artifacts, dbwResults.audits, process.cwd() + '/the_file');
+    });
 
     it('trace file saved to disk with data', () => {
       const traceFilename = 'the_file-0.trace.json';
       const traceFileContents = fs.readFileSync(traceFilename, 'utf8');
-      assert.ok(traceFileContents.length > 3000000);
+      assert.ok(traceFileContents.length > 2800000);
       fs.unlinkSync(traceFilename);
     });
 
