@@ -19,6 +19,9 @@ class TraceParser {
     const delegateMock = {
       loadingProgress: _ => {},
       loadingStarted: _ => {},
+      loadingComplete: bool => {
+        if (!bool) throw new Error('Parsing problem');
+      }
     };
     this.loader = new WebInspector.TimelineLoader(this.tracingModel, delegateMock);
   }
