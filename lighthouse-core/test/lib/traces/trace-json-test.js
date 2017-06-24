@@ -13,7 +13,7 @@ const assert = require('assert');
 /* eslint-env mocha */
 describe('tracejson parser', () => {
   it('returns preact trace data the same as JSON.parse', (done) => {
-    const filename = '../../fixtures/traces/preactjs.com_2017-01-04_15-36-36-0.trace.json';
+    const filename = '../../fixtures/traces/progressive-app-m60.json';
     const readStream = fs.createReadStream(__dirname + '/' + filename, {
       encoding: 'utf-8',
       // devtools sends traces in 10mb chunks, but this trace is 12MB so we'll do a few chunks
