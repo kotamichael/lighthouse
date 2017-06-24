@@ -140,10 +140,10 @@ function* traceJsonGenerator(traceData) {
 }
 
 /**
- * Save the trace as JSON by streaming to disk at traceFilename.
+ * Save a trace as JSON by streaming to disk at traceFilename.
  * @param {{traceEvents: !Array}} traceData
  * @param {string} traceFilename
- * @return {!Promise}
+ * @return {!Promise<undefined>}
  */
 function saveTrace(traceData, traceFilename) {
   return new Promise((resolve, reject) => {
@@ -184,12 +184,7 @@ function saveAssets(artifacts, audits, pathWithBasename) {
       fs.writeFileSync(screenshotsJSONFilename, JSON.stringify(data.screenshots, null, 2));
       log.log('saveAssets', 'screenshots saved to disk: ' + screenshotsJSONFilename);
 
-      const traceFilename = `${pathWithBasename}-${index}.trace.json`;
-      log.log('saveAssets', 'saving trace file to disk: ' + traceFilename);
-      fs.writeFileSync(traceFilename, JSON.stringify(data.traceData, null, 2));
-      log.log('saveAssets', 'trace file saved to disk: ' + traceFilename);
-
-      const streamTraceFilename = `${pathWithBasename}-${index}.trace.stream.json`;
+      const streamTraceFilename = `${pathWithBasename}-${index}.trace.json`;
       log.log('saveAssets', 'streaming trace file to disk: ' + streamTraceFilename);
       return saveTrace(data.traceData, streamTraceFilename).then(_ => {
         log.log('saveAssets', 'trace file streamed to disk: ' + streamTraceFilename);
@@ -201,5 +196,6 @@ function saveAssets(artifacts, audits, pathWithBasename) {
 module.exports = {
   saveArtifacts,
   saveAssets,
-  prepareAssets
+  prepareAssets,
+  saveTrace
 };

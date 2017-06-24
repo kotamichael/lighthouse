@@ -97,4 +97,21 @@ describe('asset-saver helper', () => {
       });
     });
   });
+
+  describe('saveTrace', () => {
+    let traceFilename;
+
+    after(() => {
+      fs.unlinkSync(traceFilename);
+    });
+
+    it('correctly streams a trace to disk', () => {
+      traceFilename = 'test-trace-0.json';
+      return assetSaver.saveTrace({traceEvents}, traceFilename)
+        .then(_ => {
+          const traceFileContents = fs.readFileSync(traceFilename, 'utf8');
+          assert.deepStrictEqual(JSON.parse(traceFileContents), {traceEvents});
+        });
+    });
+  });
 });
