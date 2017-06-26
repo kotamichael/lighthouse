@@ -28,13 +28,9 @@ describe('traceParser parser', () => {
       const streamedTrace = parser.getTrace();
       const readTrace = require(filename);
 
-      const streamedLength = streamedTrace.traceEvents.length;
-      const readLength = readTrace.traceEvents.length;
-      assert.equal(streamedLength, readLength);
+      assert.equal(streamedTrace.traceEvents.length, readTrace.traceEvents.length);
       assert.deepStrictEqual(streamedTrace.traceEvents[0], readTrace.traceEvents[0]);
-      assert.deepStrictEqual(
-        streamedTrace.traceEvents[streamedLength -1],
-        readTrace.traceEvents[streamedLength -1]);
+      assert.deepStrictEqual(streamedTrace.traceEvents, readTrace.traceEvents);
 
       done();
     });
