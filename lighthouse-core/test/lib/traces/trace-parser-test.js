@@ -5,13 +5,13 @@
  */
 'use strict';
 
-const traceJson = require('../../../lib/traces/trace-json');
+const TraceParser = require('../../../lib/traces/trace-parser');
 const fs = require('fs');
 const assert = require('assert');
 
 
 /* eslint-env mocha */
-describe('tracejson parser', () => {
+describe('traceParser parser', () => {
   it('returns preact trace data the same as JSON.parse', (done) => {
     const filename = '../../fixtures/traces/progressive-app-m60.json';
     const readStream = fs.createReadStream(__dirname + '/' + filename, {
@@ -19,7 +19,7 @@ describe('tracejson parser', () => {
       // devtools sends traces in 10mb chunks, but this trace is 12MB so we'll do a few chunks
       highWaterMark: 4 * 1024 * 1024
     });
-    const parser = new traceJson.TraceParser();
+    const parser = new TraceParser();
 
     readStream.on('data', (chunk) => {
       parser.parseChunk(chunk);
@@ -49,7 +49,7 @@ describe('tracejson parser', () => {
     const partialEventsStr = events => stripOuterBrackets(JSON.stringify(events));
 
     const traceEventsStr = partialEventsStr(events.slice(0, events.length-2)) + ',';
-    const parser = new traceJson.TraceParser();
+    const parser = new TraceParser();
 
     // read the trace intro
     parser.parseChunk(`{"traceEvents": [${traceEventsStr}`);

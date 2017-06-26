@@ -59,6 +59,4 @@ class TraceParser {
   }
 }
 
-module.exports = {
-  TraceParser
-};
+module.exports = TraceParser;

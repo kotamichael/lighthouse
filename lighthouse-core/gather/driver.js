@@ -10,7 +10,7 @@ const emulation = require('../lib/emulation');
 const Element = require('../lib/element');
 const EventEmitter = require('events').EventEmitter;
 const URL = require('../lib/url-shim');
-const traceJson = require('../lib/traces/trace-json');
+const TraceParser = require('../lib/traces/trace-parser');
 
 const log = require('lighthouse-logger');
 const DevtoolsLog = require('./devtools-log');
@@ -737,7 +737,7 @@ class Driver {
   _readTraceFromStream(streamHandle) {
     return new Promise((resolve, reject) => {
       let isEOF = false;
-      const parser = new traceJson.TraceParser();
+      const parser = new TraceParser();
 
       const readArguments = {
         handle: streamHandle.stream
