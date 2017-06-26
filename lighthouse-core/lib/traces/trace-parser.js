@@ -8,10 +8,10 @@
 const WebInspector = require('../web-inspector');
 
 /**
- * Traces > 256MB hit limits in V8, so TraceParser will parse the trace events stream as its
+ * Traces > 256MB hit limits in V8, so TraceParser will parse the trace events stream as it's
  * received. We use DevTools' TimelineLoader for the heavy lifting, as it has a fast trace-specific
  * streaming JSON parser.
- * The resulting trace doesn't include the "__metadata" property, as it's excluded via DevTools'
+ * The resulting trace doesn't include the "metadata" property, as it's excluded via DevTools'
  * implementation.
  */
 class TraceParser {
