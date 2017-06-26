@@ -74,12 +74,15 @@ describe('traceParser parser', () => {
 
     buildAndParse256mbTrace();
     const streamedTrace = parser.getTrace();
-    // assert.ok(streamedTrace.traceEvents.length > 400 * 1000);
+
     assert.ok(bytesRead > 256 * 1024 * 1024, `${bytesRead} bytes read`);
+    assert.strictEqual(bytesRead, 270179102, `${bytesRead} bytes read`);
+
     // if > 256 MB are read we should have ~480,000 trace events
-    assert.ok(streamedTrace.traceEvents.length > 300 * 1000, 'not >300,000 trace events');
-    // big trace is ~30X larger than the original
-    assert.ok(streamedTrace.traceEvents.length > events.length * 5, 'way more trace events');
+    assert.ok(streamedTrace.traceEvents.length > 400 * 1000, 'not >400,000 trace events');
+    assert.ok(streamedTrace.traceEvents.length > events.length * 5, 'not way more trace events');
+    assert.strictEqual(streamedTrace.traceEvents.length, 480151);
+
     assert.deepStrictEqual(
         streamedTrace.traceEvents[events.length - 2],
         events[0]);
