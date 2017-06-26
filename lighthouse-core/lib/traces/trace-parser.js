@@ -7,6 +7,13 @@
 
 const WebInspector = require('../web-inspector');
 
+/**
+ * Traces > 256MB hit limits in V8, so TraceParser will parse the trace events stream as its
+ * received. We use DevTools' TimelineLoader for the heavy lifting, as it has a fast trace-specific
+ * streaming JSON parser.
+ * The resulting trace doesn't include the "__metadata" property, as it's excluded via DevTools'
+ * implementation.
+ */
 class TraceParser {
   constructor() {
     this.traceEvents = [];
@@ -19,8 +26,8 @@ class TraceParser {
     const delegateMock = {
       loadingProgress: _ => {},
       loadingStarted: _ => {},
-      loadingComplete: bool => {
-        if (!bool) throw new Error('Parsing problem');
+      loadingComplete: success => {
+        if (!success) throw new Error('Parsing problem');
       }
     };
     this.loader = new WebInspector.TimelineLoader(this.tracingModel, delegateMock);
@@ -51,6 +58,7 @@ class TraceParser {
 
   /**
    * Returns entire trace
+   * @return {{traceEvents: !Array<!TraceEvent>}}
    */
   getTrace() {
     return {

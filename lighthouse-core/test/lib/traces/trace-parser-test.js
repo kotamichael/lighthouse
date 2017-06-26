@@ -42,30 +42,42 @@ describe('traceParser parser', () => {
 
 
   it('parses a trace > 256mb (slow)', () => {
+    const parser = new TraceParser();
+    let bytesRead = 0;
     // FYI: this trace doesn't have a traceEvents property ;)
     const events = require('../../fixtures/traces/devtools-homepage-w-screenshots-trace.json');
 
-    const stripOuterBrackets = str => str.replace(/^\[/, '').replace(/\]$/, '');
-    const partialEventsStr = events => stripOuterBrackets(JSON.stringify(events));
+    /**
+     * This function will synthesize a trace that's over 256 MB. To do that, we'll take an existing
+     * trace and repeat the same events again and again until we've gone over 256 MB.
+     * Note: We repeat all but the last event, as it's the CpuProfile event, and it triggers
+     * specific handling in the devtools streaming parser.
+     * Once we reach > 256 MB, we add in the CpuProfile event.
+     */
+    function buildAndParse256mbTrace() {
+      const stripOuterBrackets = str => str.replace(/^\[/, '').replace(/\]$/, '');
+      const partialEventsStr = events => stripOuterBrackets(JSON.stringify(events));
+      const traceEventsStr = partialEventsStr(events.slice(0, events.length-2)) + ',';
 
-    const traceEventsStr = partialEventsStr(events.slice(0, events.length-2)) + ',';
-    const parser = new TraceParser();
-
-    // read the trace intro
-    parser.parseChunk(`{"traceEvents": [${traceEventsStr}`);
-    let bytesRead = traceEventsStr.length;
-
-    // just keep reading until we've gone over 256 MB
-    while (bytesRead < 256 * 1024 * 1024) {
-      parser.parseChunk(traceEventsStr);
+      // read the trace intro
+      parser.parseChunk(`{"traceEvents": [${traceEventsStr}`);
       bytesRead += traceEventsStr.length;
+
+      // just keep reading until we've gone over 256 MB
+      // 256 MB is hard limit of a string in v8
+      // https://mobile.twitter.com/bmeurer/status/879276976523157505
+      while (bytesRead <= (Math.pow(2, 28)) - 16) {
+        parser.parseChunk(traceEventsStr);
+        bytesRead += traceEventsStr.length;
+      }
+
+      // the CPU Profiler event is last (and big), inject it just once
+      const lastEventStr = partialEventsStr(events.slice(-1));
+      parser.parseChunk(lastEventStr + ']}');
+      bytesRead += lastEventStr.length;
     }
 
-    // the CPU Profiler event is last (and big), inject it just once
-    const lastEventStr = partialEventsStr(events.slice(-1));
-    parser.parseChunk(lastEventStr + ']}');
-    bytesRead += lastEventStr.length;
-
+    buildAndParse256mbTrace();
     const streamedTrace = parser.getTrace();
     // assert.ok(streamedTrace.traceEvents.length > 400 * 1000);
     assert.ok(bytesRead > 256 * 1024 * 1024, `${bytesRead} bytes read`);
@@ -73,5 +85,8 @@ describe('traceParser parser', () => {
     assert.ok(streamedTrace.traceEvents.length > 300 * 1000, 'not >300,000 trace events');
     // big trace is ~30X larger than the original
     assert.ok(streamedTrace.traceEvents.length > events.length * 5, 'way more trace events');
+    assert.deepStrictEqual(
+        streamedTrace.traceEvents[events.length - 2],
+        events[0]);
   });
 });
