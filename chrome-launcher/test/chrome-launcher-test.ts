@@ -44,6 +44,7 @@ describe('Launcher', () => {
     const chromeFlags = spawnStub.getCall(0).args[1] as string[];
 
     assert.ok(chromeFlags.find(f => f.startsWith('--remote-debugging-port')))
+    assert.ok(chromeFlags.find(f => f.startsWith('--disable-background-networking')))
     assert.strictEqual(chromeFlags[chromeFlags.length - 1], 'about:blank');
   });
 
