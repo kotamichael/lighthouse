@@ -155,5 +155,26 @@ describe('asset-saver helper', () => {
           assert.deepStrictEqual(JSON.parse(traceFileContents), trace);
         });
     });
+
+    it('can save traces over 256MB (slow)', () => {
+      // Create a trace that wil be longer than 256MB when stringified, the hard
+      // limit of a string in v8.
+      // https://mobile.twitter.com/bmeurer/status/879276976523157505
+      const baseEventsLength = JSON.stringify(traceEvents).length;
+      const countNeeded = Math.ceil(Math.pow(2, 28) / baseEventsLength);
+      let longTraceEvents = [];
+      for (let i = 0; i < countNeeded; i++) {
+        longTraceEvents = longTraceEvents.concat(traceEvents);
+      }
+      const trace = {
+        traceEvents: longTraceEvents
+      };
+
+      return assetSaver.saveTrace(trace, traceFilename)
+        .then(_ => {
+          const fileStats = fs.lstatSync(traceFilename);
+          assert.ok(fileStats.size > Math.pow(2, 28));
+        });
+    });
   });
 });
