@@ -48,5 +48,5 @@ function getElementsInDocument(selector) {
 }
 
 module.exports = {
-  getElementsInDocumentFn: getElementsInDocument.toString()
+  getElementsInDocumentFnString: getElementsInDocument.toString()
 };

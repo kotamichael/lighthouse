@@ -134,7 +134,7 @@ class ImageUsage extends Gatherer {
     }, {});
 
     const expression = `(function() {
-      ${DOMHelpers.getElementsInDocumentFn}; // define function on page
+      ${DOMHelpers.getElementsInDocumentFnString}; // define function on page
       return (${collectImageElementInfo.toString()})();
     })()`;
 

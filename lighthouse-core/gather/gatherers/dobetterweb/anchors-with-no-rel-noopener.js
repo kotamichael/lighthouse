@@ -15,7 +15,7 @@ class AnchorsWithNoRelNoopener extends Gatherer {
    */
   afterPass(options) {
     const expression = `(function() {
-      ${DOMHelpers.getElementsInDocumentFn}; // define function on page
+      ${DOMHelpers.getElementsInDocumentFnString}; // define function on page
       const selector = 'a[target="_blank"]:not([rel~="noopener"])';
       const elements = getElementsInDocument(selector);
       return elements.map(node => ({
